@@ -131,8 +131,8 @@ function analyse_csv_file(fileFullName)
   pulseDetection_numberOfSecondsAtStartToIgnore = 0;  % <--- PARAMETER
 
   % SignalType:
-  pulseDetection_signalType = %SignalType.Calcium; % <--- PARAMETER
-                              SignalType.Voltage;  
+  pulseDetection_signalType = SignalType.Voltage; %SignalType.Calcium; % <--- PARAMETER
+                                
 
   % specify params for false pulses removal
   pulseDetection_removeFalsePulses_PeakThresholdPercentage = 25;       
