@@ -57,19 +57,31 @@ classdef FileReader
                 description = string(table2cell(T1(3, 2)));
 
                 % detect header row
+                version = "unknown";
                 headerRowIndex = 0;
                 while(headerRowIndex < size(T1, 1))
                     headerRowIndex = headerRowIndex + 1;
-                    
                     if (string(table2cell(T1(headerRowIndex, 1))) == "id" &&...
                         string(table2cell(T1(headerRowIndex, 2))) == "T (index)" &&...
                         string(table2cell(T1(headerRowIndex, 3))) == "T (msec)")
+                        version = '3.0.0.1';
                         break;
                     end
+                    second = char(table2cell(T1(headerRowIndex, 2))); % second column header
+                    third = char(table2cell(T1(headerRowIndex, 3)));  % third column header
+                    if (string(table2cell(T1(headerRowIndex, 1))) == "id" &&...
+                        size(second,2) >= 9 &&...
+                        size(third,2) >= 9)
+                        if (string(second(1:9)) == "Cell ID: " && string(third(1:9)) == "Cell ID: ")
+                            version = "3.0.1.0";
+                            break;
+                        end
+                    end
                 end
-                
+
                 % if header row not found - return empty table
-                if (headerRowIndex == size(T1, 1))
+                if (version == "unknown" || headerRowIndex == size(T1, 1))
+                    version
                     T = array2table(zeros(0, 1));
                     return;
                 end
@@ -85,19 +97,44 @@ classdef FileReader
                 
                 % replace VariableNames (i.e. Cell's Column Names with
                 % prefix + ID: "CellID_" + cellID (example: CellID_33)
-                for i = 4 : size(T, 2)
-                    cellName = T.Properties.VariableNames{i};
+                if (version == "3.0.0.1")
+                    T = removevars(T, {'T_index_'}); % drop the T_index_ column
+                    T
+                    T = array2table(zeros(0, 1));
+                    return;
+                    for i = 3 : size(T, 2)
+                        cellName = T.Properties.VariableNames{i};
 
-                    strCellIDs = regexp(cellName, '\d*', 'match');
+                        strCellIDs = regexp(cellName, '\d*', 'match');
 
-                    % if cell header doesn't contain a number - assign cellID as
-                    % (10000 + column number), to easily locate in source csv file
-                    cellID = num2str(10000 + i);
-                    if (~isempty(strCellIDs))
-                        cellID = strCellIDs(1);
+                        % if cell header doesn't contain a number - assign cellID as
+                        % (10000 + column number), to easily locate in source csv file
+                        cellID = num2str(10000 + i);
+                        if (~isempty(strCellIDs))
+                            cellID = strCellIDs(1);
+                        end
+                        
+                        T.Properties.VariableNames{i} = char(cellstr(strcat(FileReader.Table_VariableName_CellID_Prefix, cellID)));
                     end
-                    
-                    T.Properties.VariableNames{i} = char(cellstr(strcat(FileReader.Table_VariableName_CellID_Prefix, cellID)));
+                else % version == "3.0.1.0"
+                    T.Properties.VariableNames{2} = "T_msec_"
+                    T
+                    T = array2table(zeros(0, 1));
+                    return;
+                    for i = 4 : size(T, 2)
+                        cellName = T.Properties.VariableNames{i};
+
+                        strCellIDs = regexp(cellName, '\d*', 'match');
+
+                        % if cell header doesn't contain a number - assign cellID as
+                        % (10000 + column number), to easily locate in source csv file
+                        cellID = num2str(10000 + i);
+                        if (~isempty(strCellIDs))
+                            cellID = strCellIDs(1);
+                        end
+                        
+                        T.Properties.VariableNames{i} = char(cellstr(strcat(FileReader.Table_VariableName_CellID_Prefix, cellID)));
+                    end
                 end
 
                 % add custom properties
