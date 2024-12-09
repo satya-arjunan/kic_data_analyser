@@ -94,37 +94,25 @@ classdef FileReader
                 opts.DataLines = [headerRowIndex + 1 Inf];
 
                 T = readtable(fileFullName, opts);
-                % replace VariableNames (i.e. Cell's Column Names with
-                % prefix + ID: "CellID_" + cellID (example: CellID_33)
+
                 if (version == "3.0.0.1")
                     T = removevars(T, {'T_index_'}); % drop the T_index_ column
-                    for i = 3 : size(T, 2)
-                        cellName = T.Properties.VariableNames{i};
-
-                        strCellIDs = regexp(cellName, '\d*', 'match');
-
-                        % if cell header doesn't contain a number - assign cellID as
-                        % (10000 + column number), to easily locate in source csv file
-                        cellID = num2str(10000 + i);
-                        if (~isempty(strCellIDs))
-                            cellID = strCellIDs(1);
-                        end
-                        
-                        T.Properties.VariableNames{i} = char(cellstr(strcat(FileReader.Table_VariableName_CellID_Prefix, cellID)));
-                    end
                 else % version == "3.0.1.0"
                     T.Properties.VariableNames{2} = 'T_msec_';
                     idx = 4:2:size(T, 2);
                     T(:,idx) = []; % drop redundant timeseries columns
-                    for i = 3 : size(T, 2)
-                        cellName = T.Properties.VariableNames{i};
-                        strCellIDs = regexp(cellName, '\d*', 'match');
-                        cellID = num2str(10000 + i);
-                        if (~isempty(strCellIDs))
-                            cellID = strCellIDs(1);
-                        end
-                        T.Properties.VariableNames{i} = char(cellstr(strcat(FileReader.Table_VariableName_CellID_Prefix, cellID)));
+                end
+
+                % replace VariableNames (i.e. Cell's Column Names with
+                % prefix + ID: "CellID_" + cellID (example: CellID_33)
+                for i = 3 : size(T, 2)
+                    cellName = T.Properties.VariableNames{i};
+                    strCellIDs = regexp(cellName, '\d*', 'match');
+                    cellID = num2str(10000 + i);
+                    if (~isempty(strCellIDs))
+                        cellID = strCellIDs(1);
                     end
+                    T.Properties.VariableNames{i} = char(cellstr(strcat(FileReader.Table_VariableName_CellID_Prefix, cellID)));
                 end
                 % add custom properties
                 T = addprop(T, {'Date','Description', 'FileFullName'},{'table', 'table', 'table'});
