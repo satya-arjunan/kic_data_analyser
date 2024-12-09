@@ -108,7 +108,7 @@ function analyse_csv_file(fileFullName)
 
   %% initialize Sampling
   % Watch out - Sampling and Stimulation initialization order
-  Sampling.Init(mean(diff(table2array(tableData(:, 3)))));
+  Sampling.Init(mean(diff(table2array(tableData(:, 2)))));
 
   %% initialize Stimulation
 

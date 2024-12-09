@@ -52,12 +52,12 @@ classdef Well < BaseEntity
             self.Description = table.Properties.CustomProperties.Description;
             self.FileFullName = table.Properties.CustomProperties.FileFullName;
             
-            times = table2array(table(:, 3));
+            times = table2array(table(:, 2));
             
             rows = size(table, 1);
             cols = size(table, 2);
                         
-            for i = 4 : cols
+            for i = 3 : cols
                 
                 cellRaw = table2array(table(:, i));
 
@@ -71,7 +71,7 @@ classdef Well < BaseEntity
                 cellName = table.Properties.VariableNames{i};
                 strCellID = erase(cellName, FileReader.Table_VariableName_CellID_Prefix);
 
-                self.Cells(i-3, 1) = Cell(str2double(strCellID), cellName, "", times, cellRaw); 
+                self.Cells(i-2, 1) = Cell(str2double(strCellID), cellName, "", times, cellRaw); 
             end
         end
     end
