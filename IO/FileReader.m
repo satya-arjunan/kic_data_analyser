@@ -52,19 +52,25 @@ classdef FileReader
 
                 T1 = readtable(fileFullName, opts);
 
-                % extract date and description
-                date = datetime(string(table2cell(T1(2, 2))), 'InputFormat', 'MMMM dd yyyy HH:mm:ss');
-                description = string(table2cell(T1(3, 2)));
+                % set default date and description
+                date = datetime("now");
+                date.Format = 'MMMM d yyyy HH:mm:ss';
+                [filepath,description,ext] = fileparts(fileFullName)
 
                 % detect header row
                 version = "unknown";
                 headerRowIndex = 0;
                 while(headerRowIndex < size(T1, 1))
                     headerRowIndex = headerRowIndex + 1;
+                    if (string(table2cell(T1(headerRowIndex, 1))) == "Time (ms)")
+                        version = 'generic';
+                        break;
+                    end
+
                     if (string(table2cell(T1(headerRowIndex, 1))) == "id" &&...
                         string(table2cell(T1(headerRowIndex, 2))) == "T (index)" &&...
                         string(table2cell(T1(headerRowIndex, 3))) == "T (msec)")
-                        version = '3.0.0.1';
+                        version = 'CyteSeer 3.0.0.1';
                         break;
                     end
                     second = char(table2cell(T1(headerRowIndex, 2))); % second column header
@@ -73,7 +79,7 @@ classdef FileReader
                         size(second,2) >= 9 &&...
                         size(third,2) >= 9)
                         if (string(second(1:9)) == "Cell ID: " && string(third(1:9)) == "Cell ID: ")
-                            version = "3.0.1.0";
+                            version = "CyteSeer 3.0.1.0";
                             break;
                         end
                     end
@@ -95,17 +101,25 @@ classdef FileReader
 
                 T = readtable(fileFullName, opts);
 
-                if (version == "3.0.0.1")
-                    T = removevars(T, {'T_index_'}); % drop the T_index_ column
-                else % version == "3.0.1.0"
+                if (version == "CyteSeer 3.0.0.1")
+                    T = removevars(T, {'id'}); % drop "id" column
+                    T = removevars(T, {'T_index_'}); % drop "T_index_" column
+                elseif (version == "CyteSeer 3.0.1.0")
                     T.Properties.VariableNames{2} = 'T_msec_';
-                    idx = 4:2:size(T, 2);
-                    T(:,idx) = []; % drop redundant timeseries columns
+                    T = removevars(T, {'id'}); % drop "id" column
+                    % drop redundant timeseries columns in the newer version
+                    idx = 3:2:size(T, 2);
+                    T(:,idx) = [];
+                end
+
+                if (version ~= "generic")
+                    date = datetime(string(table2cell(T1(2, 2))), 'InputFormat', 'MMMM dd yyyy HH:mm:ss');
+                    description = string(table2cell(T1(3, 2)));
                 end
 
                 % replace VariableNames (i.e. Cell's Column Names with
                 % prefix + ID: "CellID_" + cellID (example: CellID_33)
-                for i = 3 : size(T, 2)
+                for i = 2 : size(T, 2)
                     cellName = T.Properties.VariableNames{i};
                     strCellIDs = regexp(cellName, '\d*', 'match');
                     cellID = num2str(10000 + i);
