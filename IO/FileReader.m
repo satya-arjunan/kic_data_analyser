@@ -55,7 +55,7 @@ classdef FileReader
                 % set default date and description
                 date = datetime("now");
                 date.Format = 'MMMM d yyyy HH:mm:ss';
-                [filepath,description,ext] = fileparts(fileFullName)
+                [filepath,description,ext] = fileparts(fileFullName);
 
                 % detect header row
                 version = "unknown";

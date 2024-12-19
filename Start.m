@@ -113,10 +113,22 @@ function analyse_csv_file(fileFullName)
   %% initialize Stimulation
 
   % define Stimulation parameters
-  stimuliPeriod_ms = 2000;            % <--- PARAMETER
-  stimuliNumber = 5;                 % <--- PARAMETER
-  stimulationStart_ms = 500;         % <--- PARAMETER
-  stimulusPulseDuration_ms = 7.50; 
+  stimuliPeriod_ms = 1000;            % <--- PARAMETER
+  stimuliNumber = 10;                 % <--- PARAMETER
+  stimulationStart_ms = 5000;         % <--- PARAMETER
+  stimulusPulseDuration_ms = 7.5; 
+  
+  % voltage example
+  %stimuliPeriod_ms = 1000;            % <--- PARAMETER
+  %stimuliNumber = 10;                 % <--- PARAMETER
+  %stimulationStart_ms = 5000;         % <--- PARAMETER
+  %stimulusPulseDuration_ms = 7.5; 
+
+  % calcium example
+  %stimuliPeriod_ms = 1670;            % <--- PARAMETER
+  %stimuliNumber = 9;                 % <--- PARAMETER
+  %stimulationStart_ms = 5000;         % <--- PARAMETER
+  %stimulusPulseDuration_ms = 7.5; 
   
   %stimuliPeriod_ms = 1000;            % <--- PARAMETER
   %stimuliNumber = 10;                 % <--- PARAMETER
@@ -131,7 +143,8 @@ function analyse_csv_file(fileFullName)
   pulseDetection_numberOfSecondsAtStartToIgnore = 0;  % <--- PARAMETER
 
   % SignalType:
-  pulseDetection_signalType = SignalType.Voltage; %SignalType.Calcium; % <--- PARAMETER
+  %pulseDetection_signalType = SignalType.Calcium; % <--- PARAMETER
+  pulseDetection_signalType = SignalType.Voltage; % <--- PARAMETER
                                 
 
   % specify params for false pulses removal
